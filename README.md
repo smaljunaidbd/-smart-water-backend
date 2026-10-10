@@ -114,10 +114,20 @@ Authentication leverages Spring Security and stateless JWT mechanics. Administra
 Authorization is evaluated using Method Security annotations (such as `@PreAuthorize("hasRole('ADMINISTRATOR')")`) bound across the Spring service and controller interfaces. The security context extracts claims from the parsed incoming JWT token to check permissions before allowing any operation.
 
 ### 11. What error codes and messages are returned?
-The REST endpoints communicate failure states using explicit HTTP status mappings:
-* `400 Bad Request` coupled with `ERR_INVALID_SAMPLE_DATA` for out-of-bounds parameters.
-* `401 Unauthorized` with `ERR_BAD_CREDENTIALS` for invalid login attempts.
----
+The REST endpoints communicate failure states using explicit HTTP status mappings: `400 Bad Request` coupled with `ERR_INVALID_SAMPLE_DATA` for out-of-bounds parameters, `401 Unauthorized` with `ERR_BAD_CREDENTIALS` for invalid login attempts, and `403 Forbidden` with `ERR_ACCESS_DENIED` when a citizen tries to publish laboratory records.
+
+### 12. What events are written to logs?
+The application records structured JSON events through the SLF4J/Logback subsystem. The engine outputs tracking logs for failed administrative authentication events, the calculation and creation of high-hazard (Unsafe) WQI profiles, database connection pooling issues, and critical runtime errors.
+
+### 13. Which outside services are used?
+The backend interfaces with external communication relays: an SMS gateway provider for delivering automated alerts to field repair teams, and Telegram Bot webhook endpoints to broadcast public emergency water safety warnings directly to subscribers in Rostov-on-Don.
+
+### 14. How are files, images, notifications, and long tasks handled?
+Uploaded field photos of damaged infrastructure are processed through isolated streams and pushed to S3-compatible cloud object storage. Heavy computations, such as compiling monthly regional water quality trends into PDF reports, are queued using Spring `@Async` abstraction blocks.
+
+### 15. How will the backend be tested and checked for speed?
+The verification pipeline combines automated test levels: isolated unit tests checking the mathematical WQI index logic using JUnit 5, integration verification using Testcontainers to mock live PostgreSQL instances, and performance benchmarks using Apache JMeter to ensure API response times stay below 200 milliseconds under load.
+
 ---
 
 ## 3. Database Part
